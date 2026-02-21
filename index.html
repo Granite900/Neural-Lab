@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neural Lab — Interactive Neural Network Builder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="14" r="12" stroke="url(#logoGrad)" stroke-width="2.5" fill="none"/>
+        <circle cx="14" cy="14" r="5" fill="url(#logoGrad)"/>
+        <line x1="8" y1="8" x2="11" y2="11" stroke="url(#logoGrad)" stroke-width="1.5"/>
+        <line x1="20" y1="8" x2="17" y2="11" stroke="url(#logoGrad)" stroke-width="1.5"/>
+        <line x1="8" y1="20" x2="11" y2="17" stroke="url(#logoGrad)" stroke-width="1.5"/>
+        <line x1="20" y1="20" x2="17" y2="17" stroke="url(#logoGrad)" stroke-width="1.5"/>
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="28">
+            <stop offset="0%" stop-color="#6C5CE7"/>
+            <stop offset="100%" stop-color="#00CEC9"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <h1>Neural Lab</h1>
+    </div>
+    <div class="header-controls">
+      <div class="dropdown" id="templateDropdown">
+        <button class="btn btn-secondary" id="btnTemplates" title="Load a template">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+          Templates
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" class="dropdown-arrow"><path d="M2 4l3 3 3-3"/></svg>
+        </button>
+        <div class="dropdown-menu" id="templateMenu">
+          <div class="dropdown-header">Beginner</div>
+          <button class="dropdown-item" data-template="single-neuron">
+            <span class="tmpl-icon">&#9675;</span>
+            <div>
+              <strong>Single Neuron</strong>
+              <small>One input, one weight, one output</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="two-inputs">
+            <span class="tmpl-icon">&#9675;&#9675;</span>
+            <div>
+              <strong>Two Inputs</strong>
+              <small>Two weighted inputs summed by a neuron</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="bias-neuron">
+            <span class="tmpl-icon">&#9675;+b</span>
+            <div>
+              <strong>Neuron with Bias</strong>
+              <small>Weighted input plus bias, then sigmoid</small>
+            </div>
+          </button>
+          <div class="dropdown-header">Intermediate</div>
+          <button class="dropdown-item" data-template="and-gate">
+            <span class="tmpl-icon">AND</span>
+            <div>
+              <strong>AND Gate</strong>
+              <small>Neural network that mimics a logic AND</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="or-gate">
+            <span class="tmpl-icon">OR</span>
+            <div>
+              <strong>OR Gate</strong>
+              <small>Neural network that mimics a logic OR</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="nand-gate">
+            <span class="tmpl-icon">NAND</span>
+            <div>
+              <strong>NAND Gate</strong>
+              <small>Universal gate — negated AND with inverted weights</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="xor-gate">
+            <span class="tmpl-icon">XOR</span>
+            <div>
+              <strong>XOR Gate</strong>
+              <small>Requires a hidden layer — not linearly separable</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="three-layer">
+            <span class="tmpl-icon">&#9675;&#8594;&#9675;</span>
+            <div>
+              <strong>Two-Layer Network</strong>
+              <small>Hidden layer with two ReLU neurons feeding sigmoid output</small>
+            </div>
+          </button>
+          <div class="dropdown-header">Advanced</div>
+          <button class="dropdown-item" data-template="deep-network">
+            <span class="tmpl-icon">&#9675;&#9675;&#9675;</span>
+            <div>
+              <strong>Deep Network (3 Hidden)</strong>
+              <small>15 trainable params across 3 ReLU layers — learn complex mappings</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="regression">
+            <span class="tmpl-icon">f(x)</span>
+            <div>
+              <strong>Function Approximator</strong>
+              <small>Wide 4-neuron tanh layer — fit curves like sin(x) or x&sup2;</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="classifier">
+            <span class="tmpl-icon">A|B</span>
+            <div>
+              <strong>Binary Classifier</strong>
+              <small>13 params, 3 hidden ReLU neurons — separate 2D data into classes</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="digit-recognizer">
+            <span class="tmpl-icon">&#9638;</span>
+            <div>
+              <strong>5&times;5 Digit Recognizer</strong>
+              <small>25 pixel inputs, 4 hidden neurons — draw 0s and 1s to train</small>
+            </div>
+          </button>
+          <button class="dropdown-item" data-template="image-10x10">
+            <span class="tmpl-icon">&#9638;&#9638;</span>
+            <div>
+              <strong>10&times;10 Image Recognizer</strong>
+              <small>100 pixel inputs, 8 hidden ReLU neurons — draw patterns (0/1) and train</small>
+            </div>
+          </button>
+        </div>
+      </div>
+      <button id="btnTutorial" class="btn btn-secondary" title="Open interactive tutorial">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.5a2 2 0 113 1.7c-.5.3-1 .8-1 1.3v.5"/><circle cx="8" cy="12" r="0.5" fill="currentColor"/></svg>
+        Tutorial
+      </button>
+      <button id="btnTrain" class="btn btn-train" title="Open training panel">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 13 L5 6 L8 9 L11 3 L14 7"/><circle cx="14" cy="7" r="1.5" fill="currentColor"/></svg>
+        Train
+      </button>
+      <div class="header-divider"></div>
+      <button id="btnRun" class="btn btn-primary" title="Run forward pass">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>
+        Run
+      </button>
+      <button id="btnReset" class="btn btn-secondary" title="Reset activations">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8a6 6 0 0111.5-2.3M14 8a6 6 0 01-11.5 2.3"/><polyline points="2,3 2,6 5,6"/><polyline points="14,13 14,10 11,10"/></svg>
+        Reset
+      </button>
+      <button id="btnClear" class="btn btn-danger" title="Clear canvas">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>
+        Clear
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <aside class="palette" id="palette">
+      <h2>Components</h2>
+
+      <section class="palette-group">
+        <h3>Inputs</h3>
+        <div class="palette-items">
+          <div class="palette-item" data-type="input" data-label="x1" draggable="true">
+            <div class="node-preview input-preview">x<sub>1</sub></div>
+            <span>Input x<sub>1</sub></span>
+          </div>
+          <div class="palette-item" data-type="input" data-label="x2" draggable="true">
+            <div class="node-preview input-preview">x<sub>2</sub></div>
+            <span>Input x<sub>2</sub></span>
+          </div>
+          <div class="palette-item" data-type="input" data-label="x3" draggable="true">
+            <div class="node-preview input-preview">x<sub>3</sub></div>
+            <span>Input x<sub>3</sub></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="palette-group">
+        <h3>Weights</h3>
+        <div class="palette-items">
+          <div class="palette-item" data-type="weight" data-label="w1" draggable="true">
+            <div class="node-preview weight-preview">w<sub>1</sub></div>
+            <span>Weight w<sub>1</sub></span>
+          </div>
+          <div class="palette-item" data-type="weight" data-label="w2" draggable="true">
+            <div class="node-preview weight-preview">w<sub>2</sub></div>
+            <span>Weight w<sub>2</sub></span>
+          </div>
+          <div class="palette-item" data-type="weight" data-label="w3" draggable="true">
+            <div class="node-preview weight-preview">w<sub>3</sub></div>
+            <span>Weight w<sub>3</sub></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="palette-group">
+        <h3>Neurons</h3>
+        <div class="palette-items">
+          <div class="palette-item" data-type="neuron" data-label="neuron" draggable="true">
+            <div class="node-preview neuron-preview"></div>
+            <span>Neuron</span>
+          </div>
+          <div class="palette-item" data-type="bias" data-label="b" draggable="true">
+            <div class="node-preview bias-preview">b</div>
+            <span>Bias</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="palette-group">
+        <h3>Activation</h3>
+        <div class="palette-items">
+          <div class="palette-item" data-type="activation" data-label="sigmoid" draggable="true">
+            <div class="node-preview activation-preview">&sigma;</div>
+            <span>Sigmoid</span>
+          </div>
+          <div class="palette-item" data-type="activation" data-label="relu" draggable="true">
+            <div class="node-preview activation-preview">R</div>
+            <span>ReLU</span>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <svg id="connectionsSvg" class="connections-layer"></svg>
+      <div id="canvas" class="canvas">
+        <div class="canvas-grid"></div>
+        <div id="outputNode" class="nn-node output-node" style="left: calc(100% - 140px); top: calc(50% - 30px);">
+          <div class="node-port port-in" data-port="in"></div>
+          <div class="node-body">
+            <div class="node-icon">ŷ</div>
+            <div class="node-label">Output</div>
+            <div class="node-value" id="outputValue">—</div>
+          </div>
+          <div class="activation-glow"></div>
+        </div>
+      </div>
+      <div id="testImagePanel" class="test-image-panel hidden">
+        <div class="test-image-header">
+          <span class="test-image-title">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="12" height="12" rx="1.5"/><rect x="4" y="4" width="3" height="3" fill="currentColor"/><rect x="9" y="4" width="3" height="3" fill="currentColor"/><rect x="4" y="9" width="3" height="3" fill="currentColor"/></svg>
+            Image Input
+          </span>
+          <span class="test-image-badge" id="testImageBadge"></span>
+          <button id="testImageClose" class="test-image-close">&times;</button>
+        </div>
+        <div class="test-image-body">
+          <div class="test-image-grid" id="testPixelGrid"></div>
+          <div class="test-image-actions">
+            <button id="btnTestApply" class="btn btn-primary btn-sm">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="canvas-controls">
+        <div class="zoom-controls">
+          <button id="btnZoomIn" class="zoom-btn" title="Zoom in">+</button>
+          <span id="zoomLevel" class="zoom-level">100%</span>
+          <button id="btnZoomOut" class="zoom-btn" title="Zoom out">−</button>
+          <button id="btnZoomReset" class="zoom-btn zoom-btn-text" title="Reset view">Fit</button>
+          <button id="btnToggleTestImage" class="zoom-btn zoom-btn-text" title="Toggle image input for testing">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="12" height="12" rx="1.5"/><rect x="4" y="4" width="3" height="3" fill="currentColor"/><rect x="9" y="4" width="3" height="3" fill="currentColor"/><rect x="4" y="9" width="3" height="3" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <div class="speed-controls">
+          <button type="button" id="btnAnimToggle" class="zoom-btn zoom-btn-text" title="Toggle forward pass animation">Anim</button>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="3,1 14,8 3,15" fill="currentColor" opacity=".6"/></svg>
+          <input type="range" id="animSpeed" class="speed-slider" min="0.1" max="3" step="0.1" value="1" title="Animation speed">
+          <span id="animSpeedLabel" class="speed-label">1×</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Training Panel -->
+  <div id="trainingPanel" class="training-panel hidden">
+    <div class="tp-drag-handle" id="tpDragHandle">
+      <div class="tp-handle-bar"></div>
+    </div>
+    <div class="tp-header">
+      <div class="tp-title">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 13 L5 6 L8 9 L11 3 L14 7"/><circle cx="14" cy="7" r="1.5" fill="currentColor"/></svg>
+        <span>Training</span>
+      </div>
+      <label class="tp-accel-toggle" id="tpCloudLabel" title="Train on a remote GPU via Google Colab + ngrok">
+        <input type="checkbox" id="tpCloudToggle">
+        <span class="toggle-track">
+          <span class="toggle-thumb"></span>
+        </span>
+        <span class="toggle-label">Cloud GPU</span>
+        <span class="toggle-badge" id="tpCloudBadge"></span>
+      </label>
+      <div class="tp-cloud-url-group hidden" id="tpCloudUrlGroup">
+        <input type="text" id="tpCloudUrl" class="tp-cloud-url" placeholder="http://VM_IP:5000 or https://xxx.ngrok-free.app" spellcheck="false">
+        <button id="btnCloudTest" class="btn btn-secondary btn-sm" title="Test connection">Test</button>
+      </div>
+      <div class="tp-controls">
+        <div class="tp-control-group">
+          <label>Learning Rate</label>
+          <input type="number" id="tpLearningRate" value="0.5" step="0.01" min="0.001" max="10">
+        </div>
+        <div class="tp-control-group">
+          <label>Epochs</label>
+          <input type="number" id="tpEpochs" value="500" step="50" min="1" max="50000">
+        </div>
+        <button id="btnStartTrain" class="btn btn-primary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><polygon points="3,1 14,8 3,15"/></svg>
+          Train Network
+        </button>
+        <button id="btnStopTrain" class="btn btn-danger btn-sm hidden">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1"/></svg>
+          Stop
+        </button>
+        <button id="btnResetWeights" class="btn btn-secondary btn-sm" title="Reset weights &amp; biases to their pre-training values">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8a6 6 0 0111.5-2.3M14 8a6 6 0 01-11.5 2.3"/><polyline points="2,3 2,6 5,6"/><polyline points="14,13 14,10 11,10"/></svg>
+          Reset Weights
+        </button>
+      </div>
+      <button id="tpClose" class="tp-close">&times;</button>
+    </div>
+
+    <div class="tp-body">
+      <div class="tp-dataset-section">
+        <div class="tp-dataset-toolbar">
+          <h3>Training Dataset</h3>
+          <div class="tp-dataset-actions">
+            <button id="btnAddRow" class="btn btn-secondary btn-sm">+ Add Row</button>
+            <button id="btnClearData" class="btn btn-secondary btn-sm">Clear All</button>
+            <label class="btn btn-secondary btn-sm tp-import-btn">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v8M4 7l4 4 4-4"/><path d="M2 12v2h12v-2"/></svg>
+              Import CSV/JSON
+              <input type="file" id="tpFileInput" accept=".csv,.json,.txt" hidden>
+            </label>
+            <label class="btn btn-secondary btn-sm tp-import-btn" title="Select a folder containing a CSV (file,expected) and images">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 2h4l2 2h6v8H2z"/><path d="M8 2v2"/></svg>
+              Import Folder
+              <input type="file" id="tpFolderInput" webkitdirectory directory multiple hidden>
+            </label>
+            <button id="btnExportCsv" class="btn btn-secondary btn-sm" title="Download dataset as CSV">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 14V6M4 9l4-4 4 4"/><path d="M2 2v2h12V2"/></svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <div id="tpImageGrid" class="tp-image-grid hidden">
+          <div class="tp-image-editor">
+            <div class="tp-pixel-grid" id="tpPixelGrid"></div>
+            <div class="tp-image-controls">
+              <div class="tp-image-expected">
+                <label>Expected output</label>
+                <input type="number" id="tpImageExpected" class="tp-image-expected-input" value="0" step="0.1">
+              </div>
+              <button id="btnAddSample" class="btn btn-primary btn-sm">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="2" x2="8" y2="14"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+                Add to Table
+              </button>
+              <button id="btnClearPixels" class="btn btn-secondary btn-sm">Clear Grid</button>
+            </div>
+          </div>
+          <div class="tp-sample-gallery-section">
+            <h4>Training Samples <span id="tpSampleCount">(0)</span></h4>
+            <div class="tp-sample-gallery" id="tpSampleGallery"></div>
+          </div>
+        </div>
+
+        <div id="tpDropZone" class="tp-drop-zone">
+          <div class="tp-drop-zone-content">
+            <svg width="32" height="32" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M8 2v8M4 7l4 4 4-4"/><path d="M2 12v2h12v-2"/></svg>
+            <p>Drag &amp; drop a CSV or JSON file here</p>
+            <small>Format: each row = inputs + expected output</small>
+          </div>
+        </div>
+
+        <div class="tp-table-wrapper" id="tpTableWrapper">
+          <table class="tp-table" id="tpTable">
+            <thead id="tpTableHead">
+              <tr><th>x<sub>1</sub></th><th>Expected (y)</th><th></th></tr>
+            </thead>
+            <tbody id="tpTableBody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tp-ai-section">
+          <div class="tp-ai-header">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.5 3.5l1.4 1.4M11.1 11.1l1.4 1.4M3.5 12.5l1.4-1.4M11.1 4.9l1.4-1.4"/><circle cx="8" cy="8" r="3"/></svg>
+            <span>AI Data Generator</span>
+          </div>
+          <div class="tp-ai-input-row">
+            <input type="text" id="aiDataPrompt" placeholder="e.g. AND gate truth table, y = 2*x + 1 with 5 points..." class="tp-ai-input">
+            <button id="btnAiGenerate" class="btn btn-primary btn-sm">Generate</button>
+          </div>
+          <div id="aiDataStatus" class="tp-ai-status"></div>
+        </div>
+      </div>
+
+      <div class="tp-results-section">
+        <div class="tp-loss-header">
+          <h3>Training Progress</h3>
+          <div class="tp-loss-stats">
+            <div class="tp-stat">
+              <span class="tp-stat-label">Epoch</span>
+              <span class="tp-stat-value" id="tpEpochDisplay">—</span>
+            </div>
+            <div class="tp-stat">
+              <span class="tp-stat-label">Loss (MSE)</span>
+              <span class="tp-stat-value" id="tpLossDisplay">—</span>
+            </div>
+            <div class="tp-stat">
+              <span class="tp-stat-label">Status</span>
+              <span class="tp-stat-value" id="tpStatusDisplay">Idle</span>
+            </div>
+          </div>
+        </div>
+        <div class="tp-loss-chart-wrapper">
+          <svg id="tpLossChart" class="tp-loss-chart" viewBox="0 0 400 150" preserveAspectRatio="none">
+            <text x="200" y="80" text-anchor="middle" fill="#64748b" font-size="11" font-family="system-ui">Train the network to see the loss curve</text>
+          </svg>
+        </div>
+        <div class="tp-progress-bar-wrapper hidden" id="tpProgressWrapper">
+          <div class="tp-progress-bar" id="tpProgressBar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nodeEditor" class="node-editor hidden">
+    <div class="editor-header">
+      <span id="editorTitle">Edit Node</span>
+      <button id="editorClose" class="editor-close">&times;</button>
+    </div>
+    <div class="editor-body">
+      <label for="editorValue">Value</label>
+      <input type="number" id="editorValue" step="0.1" />
+      <div id="editorActivation" class="editor-activation hidden">
+        <label>Activation Function</label>
+        <select id="editorActivationSelect">
+          <option value="sigmoid">Sigmoid</option>
+          <option value="relu">ReLU</option>
+          <option value="tanh">Tanh</option>
+          <option value="linear">Linear</option>
+        </select>
+      </div>
+    </div>
+    <div class="editor-footer">
+      <button id="editorDelete" class="btn btn-danger btn-sm">Delete</button>
+      <button id="editorSave" class="btn btn-primary btn-sm">Save</button>
+    </div>
+  </div>
+
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <!-- Tutorial Side Panel -->
+  <div id="tutorialPanel" class="tutorial-panel hidden">
+    <div class="tutorial-panel-header">
+      <div class="tutorial-panel-title">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6.5"/><path d="M6 6.5a2 2 0 113 1.7c-.5.3-1 .8-1 1.3v.5"/><circle cx="8" cy="12" r="0.5" fill="currentColor"/></svg>
+        <span>Tutorial</span>
+      </div>
+      <button id="tutorialClose" class="tp-close">&times;</button>
+    </div>
+    <div class="tutorial-progress">
+      <div class="tutorial-progress-bar" id="tutorialProgressBar"></div>
+    </div>
+    <div class="tutorial-content" id="tutorialContent"></div>
+    <div class="tutorial-footer">
+      <button id="tutorialPrev" class="btn btn-secondary btn-sm">Back</button>
+      <div class="tutorial-dots" id="tutorialDots"></div>
+      <button id="tutorialNext" class="btn btn-primary btn-sm">Next</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
